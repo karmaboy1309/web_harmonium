@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zero-G Harmonium — Antigravity Reed Instrument</title>
+    <meta name="description" content="A fully playable web-based Indian/Western harmonium with antigravity physics simulation, generative reed synthesis, and particle resonance feedback." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="harmonium-canvas"></canvas>
+
+      <!-- ── HUD Top Bar ── -->
+      <div id="hud">
+        <div id="hud-center">
+          <h1>ZERO-G HARMONIUM</h1>
+          <p class="hud-subtitle">Play keys with keyboard or mouse</p>
+        </div>
+        <div id="hud-right">
+          <div class="hud-label">ANTIGRAVITY</div>
+          <div id="gravity-indicator">
+            <span id="gravity-value">-0.10</span>
+            <span class="gravity-unit">g</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Settings Panel ── -->
+      <div id="settings-panel">
+        <!-- Volume -->
+        <div class="setting-group">
+          <label class="setting-label">Volume</label>
+          <div class="slider-container">
+            <input type="range" id="volume-slider" min="0" max="100" value="70" class="setting-slider" />
+            <span id="volume-display" class="setting-value">70%</span>
+          </div>
+        </div>
+
+        <!-- Reverb -->
+        <div class="setting-group">
+          <label class="setting-label">Reverb</label>
+          <button id="reverb-toggle" class="toggle-btn active">ON</button>
+        </div>
+
+        <!-- Transpose -->
+        <div class="setting-group">
+          <label class="setting-label">Transpose</label>
+          <div class="stepper">
+            <button id="transpose-down" class="stepper-btn">−</button>
+            <span id="transpose-display" class="stepper-value">C</span>
+            <button id="transpose-up" class="stepper-btn">+</button>
+          </div>
+        </div>
+
+        <!-- Octave -->
+        <div class="setting-group">
+          <label class="setting-label">Octave</label>
+          <div class="stepper">
+            <button id="octave-down" class="stepper-btn">−</button>
+            <span id="octave-display" class="stepper-value">0</span>
+            <button id="octave-up" class="stepper-btn">+</button>
+          </div>
+        </div>
+
+        <!-- Additional Reeds -->
+        <div class="setting-group">
+          <label class="setting-label">Reeds</label>
+          <div class="stepper">
+            <button id="reeds-down" class="stepper-btn">−</button>
+            <span id="reeds-display" class="stepper-value">0</span>
+            <button id="reeds-up" class="stepper-btn">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Start Overlay ── -->
+      <div id="start-overlay">
+        <div class="start-content">
+          <div class="start-icon">🎹</div>
+          <h2>ZERO-G HARMONIUM</h2>
+          <p>An antigravity reed instrument</p>
+          <button id="start-btn">INITIALIZE AUDIO ENGINE</button>
+          <div class="start-hint">Click to start · Audio context requires user interaction</div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
