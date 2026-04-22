@@ -78,6 +78,26 @@ html, body {
   pointer-events: auto;
 }
 
+/* Author name — left side of header */
+#hud-left-name {
+  position: absolute;
+  left: 32px;
+  top: 14px;
+}
+
+.author-name {
+  font-family: var(--font-main);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-magenta) 50%, var(--accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.3));
+  pointer-events: auto;
+}
+
 .hud-label {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -282,45 +302,28 @@ html, body {
   text-align: center;
 }
 
-/* Key hints floating at bottom */
-#key-hints {
+/* ---- Footer ---- */
+#footer {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px 0;
   pointer-events: none;
   z-index: 10;
 }
 
-.key-hint {
+#footer span {
   font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 3px 8px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: 1px;
   color: var(--text-dim);
-  transition: all 0.15s ease;
-  backdrop-filter: blur(8px);
 }
 
-.key-hint.active {
+#footer strong {
+  font-weight: 600;
   color: var(--accent-cyan);
-  border-color: rgba(0, 229, 255, 0.3);
-  box-shadow: var(--glow-cyan);
-}
-
-.key-hint.sharp {
-  color: var(--text-dim);
-  background: rgba(255, 0, 229, 0.08);
-}
-
-.key-hint.sharp.active {
-  color: var(--accent-magenta);
-  border-color: rgba(255, 0, 229, 0.3);
-  box-shadow: var(--glow-magenta);
 }
 
 /* ---- Start Overlay ---- */
@@ -428,5 +431,8 @@ html, body {
   }
   .setting-slider {
     width: 55px;
+  }
+  .author-name {
+    font-size: 14px;
   }
 }
