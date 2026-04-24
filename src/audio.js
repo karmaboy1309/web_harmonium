@@ -35,33 +35,33 @@ export class HarmoniumAudio {
     
     // Master signal chain: voices → filter → compressor → limiter → dry/wet → gain → destination
     this._compressor = new Tone.Compressor({
-      threshold: -18,
-      ratio: 6,
-      attack: 0.005,
-      release: 0.15
+      threshold: -20,
+      ratio: 4,
+      attack: 0.008,
+      release: 0.2
     });
 
     this._limiter = new Tone.Limiter(-3);
 
     this._reverb = new Tone.Reverb({
-      decay: 2.0,
+      decay: 2.5,
       wet: 1,
-      preDelay: 0.03,
+      preDelay: 0.04,
     });
     await this._reverb.generate();
 
     this._filter = new Tone.Filter({
       type: 'lowpass',
-      frequency: 3500,
+      frequency: 3800,
       rolloff: -12,
-      Q: 1,
+      Q: 0.7,
     });
 
     this._masterGain = new Tone.Gain(this.volume);
 
     // Dry/wet routing for reverb toggle
     this._dryGain = new Tone.Gain(1);
-    this._wetGain = new Tone.Gain(this.reverbEnabled ? 0.25 : 0);
+    this._wetGain = new Tone.Gain(this.reverbEnabled ? 0.35 : 0);
 
     // Chain: filter → compressor → limiter → split (dry + wet/reverb) → master → destination
     this._filter.connect(this._compressor);
@@ -91,53 +91,73 @@ export class HarmoniumAudio {
 
   /** Create a single reed voice (one set of oscillators) for a frequency */
   _createReedVoice(frequency, volumeOffset = 0) {
-    // Layer 1: Primary reed — sawtooth (bright, buzzy)
-    const saw = new Tone.Oscillator({
+    // Layer 1: Primary reed — triangle (warm, soft, typical of harmonium reeds)
+    const tri = new Tone.Oscillator({
       frequency: frequency,
-      type: 'sawtooth',
-      volume: -10 + volumeOffset,
+      type: 'triangle',
+      volume: -6 + volumeOffset,
     });
 
-    // Layer 2: Secondary reed — square, detuned slightly for beating
-    const square = new Tone.Oscillator({
-      frequency: frequency * 1.003,
-      type: 'square',
-      volume: -16 + volumeOffset,
+    // Layer 2: Harmonic reed — sine at 2nd harmonic (adds richness and warmth)
+    const harmonic2 = new Tone.Oscillator({
+      frequency: frequency * 2,
+      type: 'sine',
+      volume: -15 + volumeOffset,
     });
 
-    // Layer 3: Sub harmonic for body
+    // Layer 3: Sub harmonic for depth and body
     const sub = new Tone.Oscillator({
       frequency: frequency * 0.5,
-      type: 'triangle',
+      type: 'sine',
       volume: -20 + volumeOffset,
     });
 
-    // Individual amplitude envelope
+    // Layer 4: Slight detuning for beating effect (air variation simulation)
+    const detune = new Tone.Oscillator({
+      frequency: frequency * 0.998,
+      type: 'triangle',
+      volume: -12 + volumeOffset,
+    });
+
+    // Individual amplitude envelope - harmonium sustains indefinitely while key held
     const ampEnv = new Tone.AmplitudeEnvelope({
-      attack: 0.06,
-      decay: 0.1,
-      sustain: 0.9,
-      release: 0.25,
-      attackCurve: 'exponential',
+      attack: 0.05,
+      decay: 0.08,
+      sustain: 0.95,
+      release: 0.4,
+      attackCurve: 'linear',
       releaseCurve: 'exponential',
     });
 
-    // Per-voice filter for timbral control
+    // Per-voice filter for timbral control - warmer with reduced high frequencies
     const voiceFilter = new Tone.Filter({
       type: 'lowpass',
-      frequency: Math.min(2000 + (frequency * 1.5), 8000),
+      frequency: Math.min(2200 + (frequency * 1.3), 7000),
       rolloff: -12,
-      Q: 1.5,
+      Q: 2.2,
+    });
+
+    // Slight LFO for natural reed wavering
+    const lfo = new Tone.LFO({
+      frequency: 5.5,
+      min: 0.97,
+      max: 1.03,
+      type: 'sine',
     });
 
     // Connect: oscillators → envelope → voiceFilter → master filter
-    saw.connect(ampEnv);
-    square.connect(ampEnv);
+    tri.connect(ampEnv);
+    harmonic2.connect(ampEnv);
     sub.connect(ampEnv);
+    detune.connect(ampEnv);
     ampEnv.connect(voiceFilter);
     voiceFilter.connect(this._filter);
 
-    return { saw, square, sub, ampEnv, voiceFilter };
+    // Apply LFO to frequency modulation for natural wavering
+    lfo.connect(tri.frequency);
+    lfo.start();
+
+    return { tri, harmonic2, sub, detune, ampEnv, voiceFilter, lfo };
   }
 
   /** Start playing a note */
@@ -167,9 +187,10 @@ export class HarmoniumAudio {
 
     // Start all oscillators and trigger envelopes
     for (const voice of voices) {
-      voice.saw.start();
-      voice.square.start();
+      voice.tri.start();
+      voice.harmonic2.start();
       voice.sub.start();
+      voice.detune.start();
       voice.ampEnv.triggerAttack();
     }
 
@@ -221,16 +242,20 @@ export class HarmoniumAudio {
 
     for (const voice of entry.voices) {
       try {
-        voice.saw.stop();
-        voice.square.stop();
+        voice.tri.stop();
+        voice.harmonic2.stop();
         voice.sub.stop();
+        voice.detune.stop();
+        voice.lfo.stop();
       } catch (e) {
         // Already stopped
       }
       try {
-        voice.saw.dispose();
-        voice.square.dispose();
+        voice.tri.dispose();
+        voice.harmonic2.dispose();
         voice.sub.dispose();
+        voice.detune.dispose();
+        voice.lfo.dispose();
         voice.ampEnv.dispose();
         voice.voiceFilter.dispose();
       } catch (e) {
@@ -260,7 +285,7 @@ export class HarmoniumAudio {
   setReverb(enabled) {
     this.reverbEnabled = enabled;
     if (this._wetGain) {
-      this._wetGain.gain.rampTo(enabled ? 0.25 : 0, 0.1);
+      this._wetGain.gain.rampTo(enabled ? 0.35 : 0, 0.1);
     }
   }
 
