@@ -99,7 +99,7 @@ export class PhysicsWorld {
       const body = Bodies.rectangle(x, restY, w, h, {
         restitution: 0.05,
         friction: 0,
-        frictionAir: 0.25,    // High damping for crisp press/release
+        frictionAir: 0.40,    // Increased damping for smoother press/release
         density: isSharp ? 0.002 : 0.003,
         isStatic: false,
         label: `key-${noteData.note}`,
@@ -118,8 +118,8 @@ export class PhysicsWorld {
         pointA: pinPoint,
         bodyB: body,
         pointB: { x: 0, y: 0 },
-        stiffness: 0.95,
-        damping: 0.3,
+        stiffness: 0.92,
+        damping: 0.6,
         length: 8,
         render: { visible: false }
       });
@@ -156,7 +156,7 @@ export class PhysicsWorld {
     const key = this.keys[index];
     if (!key) return;
     // Small force — just enough for a subtle dip, keeps keys aligned
-    const forceMagnitude = key.noteData.isSharp ? 0.003 : 0.005;
+    const forceMagnitude = key.noteData.isSharp ? 0.002 : 0.003;
     Body.applyForce(key.body, key.body.position, { x: 0, y: forceMagnitude });
     key.isPressed = true;
     key.pressForce = 1.0;
